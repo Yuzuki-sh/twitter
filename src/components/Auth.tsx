@@ -1,30 +1,28 @@
-import React from "react";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import TextField from "@material-ui/core/TextField";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import Link from "@material-ui/core/Link";
-import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import Grid from "@material-ui/core/Grid";
-import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import Typography from "@material-ui/core/Typography";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { auth, storage, provider } from "../firebase";
 
-function Copyright() {
-  return (
-    <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Sasahara Yuzuki
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import styles from "./Auth.module.css";
+
+import {
+  Avatar,
+  Button,
+  CssBaseline,
+  TextField,
+  Paper,
+  Grid,
+  Typography,
+  makeStyles,
+  Modal,
+  IconButton,
+  Box,
+} from "@material-ui/core";
+
+import SendIcon from "@material-ui/icons/Send";
+import CameraIcon from "@material-ui/icons/Camera";
+import EmailIcon from "@material-ui/icons/Email";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,6 +60,28 @@ const useStyles = makeStyles((theme) => ({
 const Auth: React.FC = () => {
   const classes = useStyles();
 
+  const [email, setEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [avatarImage, setAvatarImage] = useState<File | null>(null);
+  const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+  const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files![0]) {
+      setAvatarImage(e.target.files![0]);
+      e.target.value = "";
+    }
+  };
+
+  const signInEmail = async () => {
+    await auth.signInWithEmailAndPassword(email, password);
+  };
+  const signUpEmail = async () => {
+    await auth.createUserWithEmailAndPassword(email, password);
+  };
+  const signInGoogle = async () => {
+    await auth.signInWithPopup(provider).catch((err) => alert(err.message));
+  };
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
@@ -72,7 +92,7 @@ const Auth: React.FC = () => {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            {isLogin ? "login" : "register"}
           </Typography>
           <form className={classes.form} noValidate>
             <TextField
@@ -85,6 +105,7 @@ const Auth: React.FC = () => {
               name="email"
               autoComplete="email"
               autoFocus
+              onBlur={(e) => setEmail(e.target.value)}
             />
             <TextField
               variant="outlined"
@@ -96,35 +117,61 @@ const Auth: React.FC = () => {
               type="password"
               id="password"
               autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              onBlur={(e) => setPassword(e.target.value)}
             />
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               color="primary"
               className={classes.submit}
+              startIcon={<EmailIcon />}
+              onClick={
+                isLogin
+                  ? async () => {
+                      try {
+                        await signInEmail();
+                      } catch (err) {
+                        alert(err.message);
+                      }
+                    }
+                  : async () => {
+                      try {
+                        await signUpEmail();
+                      } catch (err) {
+                        alert(err.message);
+                      }
+                    }
+              }
             >
-              Sign In
+              {isLogin ? "login" : "register"}
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
+                <span
+                  className={styles.login_reset}
+                  // onClick={() => setOpenModal(true)}
+                >
+                  Forgot password ?
+                </span>
               </Grid>
               <Grid item>
-                <Link href="#" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
+                <span
+                  className={styles.login_toggleMode}
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? "Create new account ?" : "Back to login"}
+                </span>
               </Grid>
             </Grid>
-            <Box mt={5}>
-              <Copyright />
-            </Box>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={signInGoogle}
+            >
+              Sign in with Google
+            </Button>
           </form>
         </div>
       </Grid>
