@@ -155,10 +155,10 @@ const Auth: React.FC = () => {
                   margin="normal"
                   required
                   fullWidth
-                  id="username"
+                  id="userName"
                   label="Username"
-                  name="username"
-                  autoComplete="username"
+                  name="userName"
+                  autoComplete="userName"
                   autoFocus
                   onChange={(e) => {
                     setUserName(e.target.value);
