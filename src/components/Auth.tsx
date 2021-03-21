@@ -102,9 +102,8 @@ const Auth: React.FC = () => {
       });
   };
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files == null) return;
-    if (e.target.files[0]) {
-      setAvatarImage(e.target.files[0]);
+    if (e.target.files![0]) {
+      setAvatarImage(e.target.files![0]);
       e.target.value = "";
     }
   };

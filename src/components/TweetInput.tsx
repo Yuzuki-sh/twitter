@@ -13,9 +13,8 @@ const TweetInput: React.FC = () => {
   const [tweetImage, setTweetImage] = useState<File | null>(null);
   const [tweetMsg, setTweetMsg] = useState("");
   const onChangeImageHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files == null) return;
-    if (e.target.files[0]) {
-      setTweetImage(e.target.files?.[0]);
+    if (e.target.files![0]) {
+      setTweetImage(e.target.files![0]);
       e.target.value = "";
     }
   };
